@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import br.com.caelum.leilao.builder.CriadorDeLeilao;
 import br.com.caelum.leilao.dominio.Lance;
 import br.com.caelum.leilao.dominio.Leilao;
 import br.com.caelum.leilao.dominio.Usuario;
@@ -13,19 +15,27 @@ import br.com.caelum.leilao.servico.Avaliador;
 
 public class TesteAvaliador {
 
+	private Avaliador leiloeiro;
+	private Usuario maria;
+	private Usuario jose;
+	private Usuario joao;
+
+	@Before
+	public void criaAvaliador() {
+		this.leiloeiro = new Avaliador();
+		joao = new Usuario("João");
+		jose = new Usuario("José");
+		maria = new Usuario("Maria");
+	}
+	
 	@Test
 	public void deveEntenderLancesEmOrdemCrescente() {
-		Usuario joao = new Usuario("João");
-		Usuario jose = new Usuario("José");
-		Usuario maria = new Usuario("Maria");
-		
 		Leilao leilao = new Leilao("RTX 2080 TI");
 		
 		leilao.propoe(new Lance(joao, 250.00));
 		leilao.propoe(new Lance(jose, 350.00));
 		leilao.propoe(new Lance(maria, 400.00));
 
-		Avaliador leiloeiro = new Avaliador();
 		leiloeiro.avalia(leilao);
 		
 		double menorEsperado = 250;
@@ -37,8 +47,6 @@ public class TesteAvaliador {
 	
 	@Test
 	public void deveEntenderLancesEmOrdemDecrescente() {
-		Usuario joao = new Usuario("João");
-		Usuario maria = new Usuario("Maria");
 		
 		Leilao leilao = new Leilao("RTX 2080 TI");
 		
@@ -46,8 +54,7 @@ public class TesteAvaliador {
 		leilao.propoe(new Lance(maria, 300.00));
 		leilao.propoe(new Lance(joao, 200.00));
 		leilao.propoe(new Lance(maria, 100.00));
-		
-		Avaliador leiloeiro = new Avaliador();
+
 		leiloeiro.avalia(leilao);
 		
 		double menorEsperado = 100;
@@ -58,10 +65,7 @@ public class TesteAvaliador {
 	}
 	
 	@Test
-	public void deveEntenderLancesEmOrdemAleatoria() {
-		Usuario joao = new Usuario("João");
-		Usuario maria = new Usuario("Maria");
-		
+	public void deveEntenderLancesEmOrdemAleatoria() {		
 		Leilao leilao = new Leilao("RTX 2080 TI");
 		
 		leilao.propoe(new Lance(joao, 200.00));
@@ -71,7 +75,6 @@ public class TesteAvaliador {
 		leilao.propoe(new Lance(joao, 630.00));
 		leilao.propoe(new Lance(maria, 230.00));
 		
-		Avaliador leiloeiro = new Avaliador();
 		leiloeiro.avalia(leilao);
 		
 		double menorEsperado = 120;
@@ -83,13 +86,10 @@ public class TesteAvaliador {
 	
 	@Test
 	public void deveEntenderLeilaoComApenasUmLance() {
-		Usuario joao = new Usuario("João");
-		
 		Leilao leilao = new Leilao("RTX 2080 TI");
 		
 		leilao.propoe(new Lance(joao, 1000.00));
 		
-		Avaliador leiloeiro = new Avaliador();
 		leiloeiro.avalia(leilao);
 
 		assertEquals(1000, leiloeiro.getMaiorLance(), 0.00001);
@@ -98,17 +98,13 @@ public class TesteAvaliador {
 	
 	@Test
 	public void deveEncontrarOsTresMaioresLances() {
-		Usuario joao = new Usuario("João");
-		Usuario maria = new Usuario("Maria");
+		Leilao leilao = new CriadorDeLeilao().para("RTX 2080 TI")
+												.lance(joao, 100.00)
+												.lance(maria, 200.00)
+												.lance(joao, 300.00)
+												.lance(maria, 400.00)
+												.constroi();
 		
-		Leilao leilao = new Leilao("RTX 2080 TI");
-		
-		leilao.propoe(new Lance(joao, 100.00));
-		leilao.propoe(new Lance(maria, 200.00));
-		leilao.propoe(new Lance(joao, 300.00));
-		leilao.propoe(new Lance(maria, 400.00));
-		
-		Avaliador leiloeiro = new Avaliador();
 		leiloeiro.avalia(leilao);
 		
 		List<Lance> maiores = leiloeiro.getTresMaiores();
