@@ -1,6 +1,9 @@
 package br.com.caelum.leilao.teste;
 
 import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 
 import java.util.List;
 
@@ -28,6 +31,13 @@ public class TesteAvaliador {
 		maria = new Usuario("Maria");
 	}
 	
+	@Test(expected = RuntimeException.class)
+	public void naoDeveAvaliarLeiloesSemLances() {
+		Leilao leilao = new CriadorDeLeilao().para("RTX 3090 TI").constroi();
+		leiloeiro.avalia(leilao);
+	}
+	
+	
 	@Test
 	public void deveEntenderLancesEmOrdemCrescente() {
 		Leilao leilao = new Leilao("RTX 2080 TI");
@@ -38,11 +48,8 @@ public class TesteAvaliador {
 
 		leiloeiro.avalia(leilao);
 		
-		double menorEsperado = 250;
-		double maiorEsperado = 400;
-		
-		assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0.00001);
-		assertEquals(menorEsperado, leiloeiro.getMenorLance(), 0.00001);
+		assertThat(leiloeiro.getMaiorLance(), equalTo(400.00));
+		assertThat(leiloeiro.getMenorLance(), equalTo(250.00));
 	}
 	
 	@Test
@@ -110,8 +117,11 @@ public class TesteAvaliador {
 		List<Lance> maiores = leiloeiro.getTresMaiores();
 		
 		assertEquals(3, maiores.size());
-		assertEquals(400.00, maiores.get(0).getValor(), 0.00001);
-		assertEquals(300.00, maiores.get(1).getValor(), 0.00001);
-		assertEquals(200.00, maiores.get(2).getValor(), 0.00001);
+		
+		assertThat(maiores, hasItems(
+				new Lance(maria, 400),
+				new Lance(joao, 300),
+				new Lance(maria, 200)
+		));
 	}
 }
